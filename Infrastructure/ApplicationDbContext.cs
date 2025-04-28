@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FCG.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FCG.Infrastructure
 {
@@ -21,7 +22,9 @@ namespace FCG.Infrastructure
             _connectionString = connectionString;
         }
 
-        //DbSets for your entities
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Pedido> Pedidos { get; set; }
+        public DbSet<Game> Games { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
