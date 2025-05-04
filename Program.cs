@@ -1,5 +1,6 @@
 using FCG.Infrastructure;
 using FCG.Infrastructure.Repository;
+using FCG.Infrastructure.Repository.Helpers;
 using FCG.Interfaces;
 using Infrastructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -70,7 +71,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 #region [DI]
 
 builder.Services.AddTransient(typeof(BaseLogger<>));
+builder.Services.AddScoped<CriptografiaHelper>();
+builder.Services.AddScoped<TextoHelper>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IGameRepository, GameRepository>();
 
 #endregion
 

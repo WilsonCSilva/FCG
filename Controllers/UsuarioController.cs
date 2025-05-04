@@ -1,4 +1,4 @@
-﻿using Azure;
+﻿using FCG.Infrastructure.Repository.Helpers;
 using FCG.Interfaces;
 using FCG.Models;
 using Infrastructure.Repository;
@@ -8,10 +8,13 @@ namespace FCG.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UsuarioController(IUsuarioRepository usuarioRepository, BaseLogger<UsuarioController> Logger) : ControllerBase
+    public class UsuarioController(IUsuarioRepository usuarioRepository, CriptografiaHelper criptografiaHelper, TextoHelper textoHelper, BaseLogger<UsuarioController> Logger) : ControllerBase
     {
         private readonly IUsuarioRepository _usuarioRepository = usuarioRepository;
         private readonly BaseLogger<UsuarioController> _logger = Logger;
+        private readonly CriptografiaHelper _criptografiaHelper = criptografiaHelper;
+        private readonly TextoHelper _textoHelper = textoHelper;
+
 
         [HttpPost]
         public IActionResult Post([FromBody] Usuario usuario)
@@ -22,14 +25,33 @@ namespace FCG.Controllers
                 {
                     Nome = usuario.Nome,
                     Email = usuario.Email,
-                    Senha = usuario.Senha,
+                    Senha = _criptografiaHelper.Criptografar(usuario.Senha),
                     DataNascimento = usuario.DataNascimento
                 };
-                _usuarioRepository.Cadastrar(_usuario);
 
-                string okResponse = $"Usuário {_usuario.Id} cadastrado com sucesso.";
-                _logger.LogInfotmation(okResponse);
-                return Ok(okResponse);
+                bool emailValido = _textoHelper.EmailValido(_usuario.Email);
+                bool senhaValida = _textoHelper.SenhaValida(_criptografiaHelper.Descriptografar(_usuario.Senha));
+
+                if (!emailValido)
+                {
+                    string erroResponse = "Email inválido.";
+                    _logger.LogError(erroResponse);
+                    return BadRequest(erroResponse);
+                }
+                else if (!senhaValida)
+                {
+                    string erroResponse = "Senha inválida.";
+                    _logger.LogError(erroResponse);
+                    return BadRequest(erroResponse);
+                }
+                else
+                {
+                    _usuarioRepository.Cadastrar(_usuario);
+                    string okResponse = $"Usuário {_usuario.Id} cadastrado com sucesso.";
+                    _logger.LogInfotmation(okResponse);
+                    return Ok(okResponse);
+                }
+
             }
             catch (Exception ex)
             {
@@ -133,7 +155,6 @@ namespace FCG.Controllers
                 return BadRequest(erroResponse);
             }
         }
-
 
         [HttpDelete]
         [Route("{id:int}")]

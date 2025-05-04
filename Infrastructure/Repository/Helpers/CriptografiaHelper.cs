@@ -18,7 +18,7 @@ namespace FCG.Infrastructure.Repository.Helpers
             {
                 passwordBytes[i] ^= keyBytes[i % keyBytes.Length];
             }
-            return Convert.ToBase64String(passwordBytes);
+            return Convert.ToBase64String(passwordBytes).ToString();
         }
 
         public string Descriptografar(string senha)

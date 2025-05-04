@@ -4,7 +4,7 @@ namespace FCG.Infrastructure.Repository.Helpers
 {
     public class TextoHelper
     {
-        public static bool EmailValido(string email)
+        public bool EmailValido(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
                 return false;
@@ -14,7 +14,7 @@ namespace FCG.Infrastructure.Repository.Helpers
             return Regex.IsMatch(email, padrao);
         }
 
-        private bool SenhaValida(string senha)
+        public bool SenhaValida(string senha)
         {
             if (string.IsNullOrWhiteSpace(senha))
                 return false;
