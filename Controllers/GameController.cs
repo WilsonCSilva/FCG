@@ -1,59 +1,33 @@
-﻿using FCG.Infrastructure.Repository.Helpers;
-using FCG.Interfaces;
+﻿using FCG.Interfaces;
 using FCG.Models;
 using Infrastructure.Repository;
 using Microsoft.AspNetCore.Mvc;
-
-/// VALIDAR NOME E EMAIL NO BANCO DE DADOS PRIMEIRO - INCLUIR TIPO DE USUÁRIO - REFAZER BANCO DATA SEM HORA.
 
 namespace FCG.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UsuarioController(IUsuarioRepository usuarioRepository, CriptografiaHelper criptografiaHelper, TextoHelper textoHelper, BaseLogger<UsuarioController> Logger) : ControllerBase
+    public class GameController(IGameRepository gameRepository, BaseLogger<GameController> Logger) : ControllerBase
     {
-        private readonly IUsuarioRepository _usuarioRepository = usuarioRepository;
-        private readonly BaseLogger<UsuarioController> _logger = Logger;
-        private readonly CriptografiaHelper _criptografiaHelper = criptografiaHelper;
-        private readonly TextoHelper _textoHelper = textoHelper;
-
+        private readonly IGameRepository _gameRepository = gameRepository;
+        private readonly BaseLogger<GameController> _logger = Logger;
 
         [HttpPost]
-        public IActionResult Post([FromBody] Usuario usuario)
+        public IActionResult Post([FromBody] Game game)
         {
             try
             {
-                var _usuario = new Usuario()
+                var _game = new Game()
                 {
-                    Nome = usuario.Nome,
-                    Email = usuario.Email,
-                    Senha = _criptografiaHelper.Criptografar(usuario.Senha),
-                    DataNascimento = usuario.DataNascimento
+                    Nome = game.Nome,
+                    Descricao = game.Descricao,
+                    DataLancamento = game.DataLancamento,
+                    Preco = game.Preco
                 };
-
-                bool emailValido = _textoHelper.EmailValido(_usuario.Email);
-                bool senhaValida = _textoHelper.SenhaValida(_criptografiaHelper.Descriptografar(_usuario.Senha));
-
-                if (!emailValido)
-                {
-                    string erroResponse = "Email inválido.";
-                    _logger.LogError(erroResponse);
-                    return BadRequest(erroResponse);
-                }
-                else if (!senhaValida)
-                {
-                    string erroResponse = "Senha inválida.";
-                    _logger.LogError(erroResponse);
-                    return BadRequest(erroResponse);
-                }
-                else
-                {
-                    _usuarioRepository.Cadastrar(_usuario);
-                    string okResponse = $"Usuário {_usuario.Id} cadastrado com sucesso.";
-                    _logger.LogInfotmation(okResponse);
-                    return Ok(okResponse);
-                }
-
+                _gameRepository.Cadastrar(_game);
+                string okResponse = $"Game {_game.Id} cadastrado com sucesso.";
+                _logger.LogInfotmation(okResponse);
+                return Ok(okResponse);
             }
             catch (Exception ex)
             {
@@ -70,13 +44,13 @@ namespace FCG.Controllers
         }
 
         [HttpGet("todos")]
-        public IActionResult Get()
+        public IActionResult get()
         {
             try
             {
-                var _usuarios = _usuarioRepository.ObterTodos();
-                _logger.LogInfotmation("Todos os usuários exibidos com sucesso.");
-                return Ok(_usuarios);
+                var _games = _gameRepository.ObterTodos();
+                _logger.LogInfotmation("Games exibidos com sucesso.");
+                return Ok(_games);
             }
             catch (Exception ex)
             {
@@ -98,20 +72,20 @@ namespace FCG.Controllers
         {
             try
             {
-                var _usuario = _usuarioRepository.ObterPorID(id);
-                if (_usuario == null)
+                var _game = _gameRepository.ObterPorID(id);
+                if (_game == null)
                 {
                     var erroResponse = new ErroResponse
                     {
                         StatusCode = StatusCodes.Status404NotFound,
                         Erro = "Not Found",
-                        Detalhe = "Usuário não encontrado."
+                        Detalhe = "Game não encontrado."
                     };
                     _logger.LogError(erroResponse.ToString());
                     return NotFound(erroResponse);
                 }
-                _logger.LogInfotmation($"Usuário {id} exibido com sucesso.");
-                return Ok(_usuario);
+                _logger.LogInfotmation("Game exibido com sucesso.");
+                return Ok(_game);
             }
             catch (Exception ex)
             {
@@ -127,20 +101,20 @@ namespace FCG.Controllers
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] Usuario usuario)
+        public IActionResult Put([FromBody] Game game)
         {
             try
             {
-                var _usuario = _usuarioRepository.ObterPorID(usuario.Id);
+                var _game = _gameRepository.ObterPorID(game.Id);
                 {
-                    _usuario.Nome = usuario.Nome;
-                    _usuario.Email = usuario.Email;
-                    _usuario.Senha = usuario.Senha;
-                    _usuario.DataNascimento = usuario.DataNascimento;
+                    _game.Nome = game.Nome;
+                    _game.Descricao = game.Descricao;
+                    _game.DataLancamento = game.DataLancamento;
+                    _game.Preco = game.Preco;
                 };
-                _usuarioRepository.Alterar(_usuario);
+                _gameRepository.Alterar(_game);
 
-                string okResponse = $"Usuário {usuario.Id} alterado com sucesso.";
+                string okResponse = $"Game {_game.Id} alterado com sucesso.";
                 _logger.LogInfotmation(okResponse);
                 return Ok(okResponse);
             }
@@ -158,14 +132,14 @@ namespace FCG.Controllers
         }
 
         [HttpDelete]
-        [Route("{id:int}")]
-        public IActionResult Delete([FromRoute] int id)
+        [Route("{Id:int}")]
+        public IActionResult Delete([FromRoute] int Id)
         {
             try
             {
-                _usuarioRepository.Deletar(id);
+                _gameRepository.Deletar(Id);
 
-                string okResponse = $"Usuário {id} excluído com sucesso.";
+                string okResponse = $"Game {Id} deletado com sucesso.";
                 _logger.LogInfotmation(okResponse);
                 return Ok(okResponse);
             }

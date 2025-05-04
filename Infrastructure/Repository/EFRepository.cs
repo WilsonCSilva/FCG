@@ -38,7 +38,10 @@ namespace FCG.Infrastructure.Repository
         }
 
         public T ObterPorID(int id)
-        => _dbSet.FirstOrDefault(entidade => entidade.Id == id);
+            => _dbSet.FirstOrDefault(entidade => entidade.Id == id);
+
+        public T ObterPorNome(string nome)
+            => _dbSet.FirstOrDefault(entidade => entidade.Nome == nome);
 
         public IList<T> ObterTodos()
             => _dbSet.ToList();

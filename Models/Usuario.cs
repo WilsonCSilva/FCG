@@ -7,9 +7,7 @@
         /// </summary>
         public required string Nome { get; set; }
 
-        /// <summary>
-        /// Máx. 100 caracteres.
-        /// </summary>
+        /// <summary>Máx. 100 caracteres.</summary>
         public required string Email { get; set; }
 
         /// <summary>
@@ -17,7 +15,9 @@
         /// </summary>
         public required string Senha { get; set; }
 
-        /// <example>Formato: yyyy-MM-dd</example>
+        /// <summary>
+        /// Formato: dd/MM/yyyy.
+        /// </summary>
         public required DateTime DataNascimento { get; set; }
     }
 }

@@ -35,6 +35,10 @@ builder.Services.AddSwaggerGen(options =>
             Name = "MIT License", Url = new Uri("https://opensource.org/licenses/MIT") 
         },
         Version = "Fase 1" });
+    
+        var xmlFile = "FCG.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        options.IncludeXmlComments(xmlPath);
 });
 
 #endregion
