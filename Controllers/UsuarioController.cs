@@ -4,6 +4,8 @@ using FCG.Models;
 using Infrastructure.Repository;
 using Microsoft.AspNetCore.Mvc;
 
+/// VALIDAR NOME E EMAIL NO BANCO DE DADOS PRIMEIRO - INCLUIR TIPO DE USUÁRIO - REFAZER BANCO DATA SEM HORA.
+
 namespace FCG.Controllers
 {
     [ApiController]
