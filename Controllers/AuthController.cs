@@ -16,14 +16,14 @@ namespace FIAPCloudGames.Controllers
         private readonly BaseLogger<AuthController> _logger = logger;
 
         [HttpPost("login")]
-        public IActionResult Logar(string userName, string password)
+        public IActionResult Logar(string clientId, string clientSecret)
         {
-            if (userName == "admin" && password == "admin")
+            if (clientId == "admin" && clientSecret == "admin")
             {
-                var (token, dataCriacao, dataExpiracao) = GerarToken(userName, "admin");
-                
+                var (token, dataCriacao, dataExpiracao) = GerarToken(clientId, "admin");
+
                 _logger.LogInfotmation("Token gerado com sucesso.");
-                
+
                 return Ok(new
                 {
                     token,
@@ -32,12 +32,12 @@ namespace FIAPCloudGames.Controllers
                     expires = dataExpiracao.ToString("yyyy-MM-dd HH:mm:ss")
                 });
             }
-            else if (userName == "user" && password == "user")
+            else if (clientId == "user" && clientSecret == "user")
             {
-                var (token, dataCriacao, dataExpiracao) = GerarToken(userName, "user");
-                
+                var (token, dataCriacao, dataExpiracao) = GerarToken(clientId, "user");
+
                 _logger.LogInfotmation("Token gerado com sucesso.");
-                
+
                 return Ok(new
                 {
                     token,
@@ -50,13 +50,13 @@ namespace FIAPCloudGames.Controllers
             {
                 var erroResponse = new ErroResponse
                 {
-                    StatusCode = 401,
+                    StatusCode = StatusCodes.Status401Unauthorized,
                     Erro = "Unauthorized",
                     Detalhe = "Usuário ou senha inválidos."
                 };
-                
+
                 _logger.LogError("Erro ao gerar token.");
-                
+
                 return Unauthorized(erroResponse);
             }
         }
