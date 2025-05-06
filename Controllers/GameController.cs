@@ -1,18 +1,20 @@
 ﻿using FCG.Interfaces;
+using FCG.Middlewares;
 using FCG.Models;
-using Infrastructure.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class GameController(IGameRepository gameRepository, BaseLogger<GameController> Logger) : ControllerBase
     {
         private readonly IGameRepository _gameRepository = gameRepository;
         private readonly BaseLogger<GameController> _logger = Logger;
 
         [HttpPost]
+        [Authorize(Policy = "Admin")]
         public IActionResult Post([FromBody] Game game)
         {
             try
@@ -101,6 +103,7 @@ namespace FCG.Controllers
         }
 
         [HttpPut]
+        [Authorize(Policy = "Admin")]
         public IActionResult Put([FromBody] Game game)
         {
             try
@@ -132,6 +135,7 @@ namespace FCG.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Policy = "Admin")]
         [Route("{Id:int}")]
         public IActionResult Delete([FromRoute] int Id)
         {

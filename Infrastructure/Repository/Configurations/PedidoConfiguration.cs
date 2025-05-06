@@ -11,7 +11,7 @@ namespace FCG.Infrastructure.Repository.Configurations
             builder.ToTable("Pedido");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).HasColumnOrder(0).HasColumnType("int").UseIdentityColumn();
-            builder.Property(x => x.DataCriacao).HasColumnOrder(1).HasColumnType("datetime").IsRequired();
+            builder.Property(x => x.DataCriacao).HasColumnOrder(1).HasColumnType("date").IsRequired();
             builder.Property(x => x.UsuarioId).HasColumnOrder(2).HasColumnType("int").IsRequired();
 
             builder.HasMany(x => x.Itens)

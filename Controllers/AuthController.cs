@@ -1,5 +1,7 @@
-﻿using FCG.Models;
-using Infrastructure.Repository;
+﻿using FCG.Infrastructure.Repository.Helpers;
+using FCG.Interfaces;
+using FCG.Middlewares;
+using FCG.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -10,31 +12,38 @@ namespace FIAPCloudGames.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AuthController(IConfiguration configuration, BaseLogger<AuthController> logger) : ControllerBase
+    public class AuthController(IConfiguration configuration, IUsuarioRepository usuarioRepository, CriptografiaHelper criptografiaHelper, LoginHelper loginHelper, BaseLogger<AuthController> logger) : ControllerBase
     {
         private readonly IConfiguration _configuration = configuration;
+        private readonly IUsuarioRepository _usuarioRepository = usuarioRepository;
+        private readonly CriptografiaHelper _criptografiaHelper = criptografiaHelper;
+        private readonly LoginHelper _loginHelper = loginHelper;
         private readonly BaseLogger<AuthController> _logger = logger;
 
         [HttpPost("login")]
-        public IActionResult Logar(string clientId, string clientSecret)
+        public IActionResult Logar(string usuario, string email, string senha)
         {
-            if (clientId == "admin" && clientSecret == "admin")
+            var _usuario = _usuarioRepository.ObterPorNome(usuario);
+
+            if (_usuario != null)
             {
-                var (token, dataCriacao, dataExpiracao) = GerarToken(clientId, "admin");
+                bool emailCorreto = _loginHelper.VerificarCadastroEmail(_usuario.Email, email);
+                bool senhaCorreta = _loginHelper.VerificarCadastroSenha(_criptografiaHelper.Descriptografar(_usuario.Senha), senha);
 
-                _logger.LogInfotmation("Token gerado com sucesso.");
-
-                return Ok(new
+                if (!emailCorreto)
                 {
-                    token,
-                    type = "Bearer",
-                    iat = dataCriacao.ToString("yyyy-MM-dd HH:mm:ss"),
-                    expires = dataExpiracao.ToString("yyyy-MM-dd HH:mm:ss")
-                });
-            }
-            else if (clientId == "user" && clientSecret == "user")
-            {
-                var (token, dataCriacao, dataExpiracao) = GerarToken(clientId, "user");
+                    string erroResponse = "Email incorreto.";
+                    _logger.LogError(erroResponse);
+                    return BadRequest(erroResponse);
+                }
+                else if (!senhaCorreta)
+                {
+                    string erroResponse = "Senha incorreta.";
+                    _logger.LogError(erroResponse);
+                    return BadRequest(erroResponse);
+                }
+
+                var (token, dataCriacao, dataExpiracao) = GerarToken(_usuario.Nome, _usuario.Email, _usuario.TipoUsuario);
 
                 _logger.LogInfotmation("Token gerado com sucesso.");
 
@@ -61,7 +70,7 @@ namespace FIAPCloudGames.Controllers
             }
         }
 
-        private (string token, DateTime dataCriacao, DateTime dataExpiracao) GerarToken(string userName, string role)
+        private (string token, DateTime dataCriacao, DateTime dataExpiracao) GerarToken(string userName, string email, short role)
         {
             DateTime dataCriacao = DateTime.Now;
             DateTime dataExpiracao = dataCriacao.AddMinutes(double.Parse(_configuration["JWT:ExpirationMinutes"]));
@@ -72,8 +81,8 @@ namespace FIAPCloudGames.Controllers
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userName),
-                new Claim(JwtRegisteredClaimNames.Email, userName),
-                new Claim(ClaimTypes.Role, role),
+                new Claim(JwtRegisteredClaimNames.Email, email),
+                new Claim(ClaimTypes.Role, role == 1 ? "Admin" : "User"),
                 new Claim(JwtRegisteredClaimNames.Iat, dataCriacao.ToString("yyyy-MM-dd HH:mm:ss")),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };

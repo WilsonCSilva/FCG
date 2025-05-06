@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Repository
+﻿namespace FCG.Middlewares
 {
     public class BaseLogger<T>
     {

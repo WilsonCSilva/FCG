@@ -1,15 +1,14 @@
 ﻿using FCG.Infrastructure.Repository.Helpers;
 using FCG.Interfaces;
+using FCG.Middlewares;
 using FCG.Models;
-using Infrastructure.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-/// VALIDAR NOME E EMAIL NO BANCO DE DADOS PRIMEIRO - INCLUIR TIPO DE USUÁRIO - REFAZER BANCO DATA SEM HORA.
 
 namespace FCG.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UsuarioController(IUsuarioRepository usuarioRepository, CriptografiaHelper criptografiaHelper, TextoHelper textoHelper, BaseLogger<UsuarioController> Logger) : ControllerBase
     {
         private readonly IUsuarioRepository _usuarioRepository = usuarioRepository;
@@ -28,7 +27,8 @@ namespace FCG.Controllers
                     Nome = usuario.Nome,
                     Email = usuario.Email,
                     Senha = _criptografiaHelper.Criptografar(usuario.Senha),
-                    DataNascimento = usuario.DataNascimento
+                    DataNascimento = usuario.DataNascimento,
+                    TipoUsuario = usuario.TipoUsuario                    
                 };
 
                 bool emailValido = _textoHelper.EmailValido(_usuario.Email);
@@ -127,6 +127,7 @@ namespace FCG.Controllers
         }
 
         [HttpPut]
+        [Authorize(Policy = "Admin")]
         public IActionResult Put([FromBody] Usuario usuario)
         {
             try
@@ -158,6 +159,7 @@ namespace FCG.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Policy = "Admin")]
         [Route("{id:int}")]
         public IActionResult Delete([FromRoute] int id)
         {

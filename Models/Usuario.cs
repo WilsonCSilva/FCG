@@ -3,21 +3,26 @@
     public class Usuario : EntityBase
     {
         /// <summary>
-        /// Nome completo do usuário. Máx. 200 caracteres.
+        /// Nome completo do usuário. Máximo 200 caracteres.
         /// </summary>
         public required string Nome { get; set; }
 
-        /// <summary>Máx. 100 caracteres.</summary>
+        /// <summary>Máximo 100 caracteres.</summary>
         public required string Email { get; set; }
 
         /// <summary>
-        /// Máx. 50 caracteres.
+        /// Máximo 50 caracteres. Obrigatório letras maiúsculas, minúsculas, números e caracteres especiais.
         /// </summary>
         public required string Senha { get; set; }
 
         /// <summary>
-        /// Formato: dd/MM/yyyy.
+        /// Formato: yyyy-MM-dd
         /// </summary>
         public required DateTime DataNascimento { get; set; }
+
+        /// <summary>
+        /// Tipo de usuário: 1 = Administrador, 2 = Usuário comum.
+        /// </summary>
+        public required short TipoUsuario { get; set; }
     }
 }
