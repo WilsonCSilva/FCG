@@ -72,7 +72,7 @@ namespace FCG.Controllers
         [HttpGet("todos")]
         public IActionResult Get()
         {
-            try
+           try
             {
                 var _usuarios = _usuarioRepository.ObterTodos();
                 _logger.LogInfotmation("Todos os usuários exibidos com sucesso.");
@@ -138,7 +138,8 @@ namespace FCG.Controllers
                     _usuario.Email = usuario.Email;
                     _usuario.Senha = usuario.Senha;
                     _usuario.DataNascimento = usuario.DataNascimento;
-                };
+                }
+                ;
                 _usuarioRepository.Alterar(_usuario);
 
                 string okResponse = $"Usuário {usuario.Id} alterado com sucesso.";

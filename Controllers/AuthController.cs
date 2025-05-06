@@ -72,10 +72,12 @@ namespace FIAPCloudGames.Controllers
 
         private (string token, DateTime dataCriacao, DateTime dataExpiracao) GerarToken(string userName, string email, short role)
         {
-            DateTime dataCriacao = DateTime.Now;
-            DateTime dataExpiracao = dataCriacao.AddMinutes(double.Parse(_configuration["JWT:ExpirationMinutes"]));
+            DateTime dataCriacao = DateTime.UtcNow;
+            DateTime dataExpiracao = dataCriacao.AddMinutes(double.Parse(_configuration["Jwt:ExpirationMinutes"]));
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
+            var dataCriacaoUnix = new DateTimeOffset(dataCriacao).ToUnixTimeSeconds();
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
@@ -83,13 +85,13 @@ namespace FIAPCloudGames.Controllers
                 new Claim(JwtRegisteredClaimNames.Sub, userName),
                 new Claim(JwtRegisteredClaimNames.Email, email),
                 new Claim(ClaimTypes.Role, role == 1 ? "Admin" : "User"),
-                new Claim(JwtRegisteredClaimNames.Iat, dataCriacao.ToString("yyyy-MM-dd HH:mm:ss")),
+                new Claim(JwtRegisteredClaimNames.Iat, dataCriacaoUnix.ToString(), ClaimValueTypes.Integer64),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["JWT:Issuer"],
-                audience: _configuration["JWT:Audience"],
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
                 claims: claims,
                 expires: dataExpiracao,
                 signingCredentials: creds
