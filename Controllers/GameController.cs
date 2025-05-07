@@ -32,7 +32,7 @@ namespace FCG.Controllers
                 return Ok(okResponse);
             }
             catch (Exception ex)
-            {
+            { 
                 var erroResponse = new ErroResponse
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
